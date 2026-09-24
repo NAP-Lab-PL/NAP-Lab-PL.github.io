@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Nonlinear Analysis & PDE Lab — research by Bartosz Bieganowski, Daniel Strzelecki and Adam Konysz.">
+  <title>Nonlinear Analysis & PDE Lab</title>
+  <style>
+    :root {
+      --ink: #14213d;
+      --muted: #68738a;
+      --paper: #f7f8fb;
+      --white: #fff;
+      --line: #dfe4ee;
+      --blue: #3157d5;
+      --blue-dark: #20388e;
+      --teal: #0ca7a5;
+      --coral: #ff795f;
+      --yellow: #f4c95d;
+      --shadow: 0 20px 60px rgba(20, 33, 61, .10);
+      --radius: 24px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "DM Sans", Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    a { color: inherit; }
+    button, input { font: inherit; }
+    .shell { max-width: 1220px; margin: 0 auto; padding: 0 28px; }
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(247, 248, 251, .86);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(223, 228, 238, .75);
+    }
+    .topbar-inner { height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 800; letter-spacing: -.04em; }
+    .brand-mark {
+      width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px;
+      color: var(--white); background: var(--ink); font-size: 17px; font-weight: 900;
+      box-shadow: 5px 5px 0 var(--coral);
+    }
+    .brand small { display: block; color: var(--muted); font-weight: 600; letter-spacing: .02em; font-size: 10px; text-transform: uppercase; }
+    nav { display: flex; align-items: center; gap: 7px; }
+    .nav-btn {
+      border: 0; border-radius: 999px; background: transparent; color: var(--muted);
+      cursor: pointer; padding: 10px 14px; font-size: 13px; font-weight: 700; transition: .2s ease;
+    }
+    .nav-btn:hover, .nav-btn.active { color: var(--ink); background: var(--white); box-shadow: 0 4px 15px rgba(20,33,61,.08); }
+    .hero { position: relative; overflow: hidden; padding: 94px 0 78px; background: var(--white); }
+    .hero.is-hidden { display: none; }
+    .hero:before {
+      content: ""; position: absolute; width: 520px; height: 520px; right: -170px; top: -180px;
+      border: 1px solid rgba(49,87,213,.16); border-radius: 50%; box-shadow: 0 0 0 38px rgba(49,87,213,.04), 0 0 0 80px rgba(12,167,165,.04);
+    }
+    .hero:after { content: ""; position: absolute; width: 240px; height: 240px; left: -130px; bottom: -130px; border-radius: 50%; background: rgba(255,121,95,.12); }
+    .hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 62px; align-items: end; }
+    .eyebrow { color: var(--blue); text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 900; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 790px; margin: 16px 0 22px; font-size: clamp(46px, 7vw, 90px); line-height: .98; letter-spacing: -.075em; }
+    .hero-lede { max-width: 670px; margin-bottom: 30px; color: var(--muted); font-size: 18px; }
+    .hero-links { display: flex; flex-wrap: wrap; gap: 10px; }
+    .pill-link, .tag {
+      display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; text-decoration: none;
+      padding: 9px 13px; font-size: 12px; font-weight: 800;
+    }
+    .pill-link { color: var(--white); background: var(--blue); }
+    .pill-link.ghost { color: var(--ink); background: #edf0f8; }
+    .hero-card { padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(247,248,251,.84); box-shadow: var(--shadow); }
+    .hero-card-label { color: var(--muted); text-transform: uppercase; letter-spacing: .12em; font-size: 10px; font-weight: 900; }
+    .hero-card strong { display: block; margin: 12px 0 12px; font-size: 30px; line-height: 1; letter-spacing: -.06em; }
+    .hero-card p { color: var(--muted); font-size: 13px; margin-bottom: 19px; }
+    .metric-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .metric { padding: 12px; border-radius: 16px; background: var(--white); }
+    .metric b { display: block; font-size: 22px; letter-spacing: -.05em; }
+    .metric span { color: var(--muted); font-size: 10px; }
+    .tabs { padding: 26px 0 80px; }
+    .tab-panel { display: none; animation: rise .35s ease both; }
+    .tab-panel.active { display: block; }
+    @keyframes rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin: 28px 0 28px; }
+    .section-kicker { color: var(--teal); text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 900; }
+    h2 { margin: 8px 0 0; font-size: clamp(32px, 5vw, 54px); letter-spacing: -.07em; line-height: 1; }
+    .section-intro { max-width: 480px; color: var(--muted); margin: 0; font-size: 14px; }
+    .people-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .profile-card { min-height: 100%; }
+    .profile-photo { position: relative; width: 100%; height: 210px; display: grid; place-items: center; overflow: hidden; margin-bottom: 22px; border-radius: 18px; color: var(--white); background: linear-gradient(135deg, var(--ink), var(--blue)); }
+    .profile-card:nth-child(2) .profile-photo { background: linear-gradient(135deg, #087d7b, var(--teal)); }
+    .profile-card:nth-child(3) .profile-photo { background: linear-gradient(135deg, #d95749, var(--coral)); }
+    .profile-photo img { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .profile-photo span { position: relative; z-index: 0; font-size: 48px; font-weight: 900; letter-spacing: -.08em; }
+    .profile-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .profile-links a { color: var(--blue); font-size: 11px; font-weight: 800; text-decoration: none; }
+    .person-card { position: relative; overflow: hidden; min-height: 200px; display: flex; flex-direction: column; padding: 22px; border-radius: var(--radius); background: var(--white); border: 1px solid var(--line); box-shadow: 0 12px 35px rgba(20,33,61,.06); }
+    .person-card:before { content: ""; position: absolute; width: 120px; height: 120px; right: -40px; top: -40px; border-radius: 50%; border: 20px solid rgba(49,87,213,.08); }
+    .initials { width: 54px; height: 54px; display: grid; place-items: center; margin-bottom: 28px; border-radius: 18px; color: var(--white); background: var(--ink); font-weight: 900; letter-spacing: -.04em; }
+    .person-card:nth-child(2) .initials { background: var(--teal); }
+    .person-card:nth-child(3) .initials { background: var(--coral); }
+    .person-card h3 { margin: 0 0 4px; font-size: 23px; letter-spacing: -.05em; }
+    .role { color: var(--blue); font-size: 12px; font-weight: 800; }
+    .person-card p { flex: 1; margin: 14px 0 18px; color: var(--muted); font-size: 13px; }
+    .person-card .mini-links { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mini-links a { color: var(--ink); font-size: 11px; font-weight: 800; text-decoration: none; border-bottom: 1px solid var(--line); }
+    .split { display: grid; grid-template-columns: 1.16fr .84fr; gap: 18px; margin-top: 18px; }
+    .feature, .info-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); box-shadow: 0 12px 35px rgba(20,33,61,.05); }
+    .feature { padding: 28px; background: var(--ink); color: var(--white); }
+    .feature .section-kicker { color: var(--yellow); }
+    .feature h3 { max-width: 680px; margin: 15px 0 14px; font-size: 31px; line-height: 1.06; letter-spacing: -.06em; }
+    .feature p { color: #b9c2d7; font-size: 14px; }
+    .feature.proposal { margin-top: 18px; color: var(--ink); background: #fff1ec; border-color: #ffd8ce; }
+    .feature.proposal .section-kicker { color: var(--coral); }
+    .feature.proposal p { color: #697287; }
+    .feature.proposal .feature-foot { color: #697287; }
+    .feature-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0; }
+    .tag { padding: 6px 10px; color: var(--ink); background: #e8edf9; font-size: 10px; }
+    .tag.yellow { background: var(--yellow); }
+    .tag.teal { color: var(--white); background: var(--teal); }
+    .feature-foot { display: flex; flex-wrap: wrap; gap: 18px; color: #d9dfec; font-size: 12px; }
+    .feature-foot a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+    .info-card { padding: 25px; }
+    .info-card h3 { margin-bottom: 14px; font-size: 20px; letter-spacing: -.04em; }
+    .clean-list { list-style: none; padding: 0; margin: 0; }
+    .clean-list li { padding: 11px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    .clean-list li strong { display: block; color: var(--ink); font-size: 12px; }
+    .source-note { margin-top: 18px; color: var(--muted); font-size: 11px; }
+    .source-note a { color: var(--blue); }
+    .pub-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 22px; }
+    .pub-list-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 0 0 12px; }
+    .pub-list-heading h3 { margin: 0; font-size: 20px; letter-spacing: -.05em; }
+    .pub-list-heading span { color: var(--muted); font-size: 11px; }
+    .search-box { flex: 1 1 250px; position: relative; }
+    .search-box input { width: 100%; border: 1px solid var(--line); border-radius: 999px; outline: 0; padding: 13px 16px 13px 40px; color: var(--ink); background: var(--white); }
+    .search-box span { position: absolute; left: 16px; top: 10px; color: var(--muted); }
+    .filter-btn { border: 1px solid var(--line); border-radius: 999px; cursor: pointer; padding: 11px 14px; color: var(--muted); background: var(--white); font-size: 12px; font-weight: 800; }
+    .filter-btn.active, .filter-btn:hover { color: var(--white); border-color: var(--blue); background: var(--blue); }
+    .pub-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .pub-columns { display: block; }
+    .pub-columns > .pub-list { border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); overflow: hidden; }
+    .pub-column { min-width: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); overflow: hidden; }
+    .pub-column-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 22px 24px; color: var(--white); background: var(--ink); }
+    .pub-column-head h3 { margin: 0; font-size: 20px; letter-spacing: -.05em; }
+    .pub-column-head span { color: #b9c2d7; font-size: 11px; }
+    .pub-list { list-style: none; margin: 0; padding: 0; }
+    .pub-item { display: flex; gap: 12px; justify-content: space-between; padding: 17px 22px; border-top: 1px solid var(--line); }
+    .pub-item.hidden { display: none; }
+    .pub-year { flex: 0 0 36px; color: var(--coral); font-size: 11px; font-weight: 900; }
+    .pub-copy { flex: 1; min-width: 0; }
+    .pub-copy strong { display: block; color: var(--ink); font-size: 13px; line-height: 1.35; }
+    .pub-copy small { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; }
+    .pub-copy a { color: var(--blue); text-decoration: none; }
+    .pub-copy a:hover { text-decoration: underline; }
+    .empty-state { display: none; padding: 28px; color: var(--muted); font-size: 13px; }
+    .conference-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
+    .conference-list { display: grid; gap: 10px; }
+    .conference-item { display: grid; grid-template-columns: 70px 1fr; gap: 18px; align-items: center; padding: 17px 22px; border: 1px solid var(--line); border-radius: 18px; background: var(--white); }
+    .conference-item.hidden { display: none; }
+    .conference-year { color: var(--muted); font-size: 13px; font-weight: 800; letter-spacing: .04em; opacity: .75; }
+    .conference-item h3 { margin: 0 0 4px; font-size: 15px; letter-spacing: -.03em; }
+    .conference-item p { margin: 0; color: var(--muted); font-size: 12px; }
+    .conference-person { border-radius: 999px; padding: 6px 10px; color: var(--blue); background: #edf0f8; font-size: 10px; font-weight: 900; white-space: nowrap; }
+    .contact-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 18px; }
+    .contact-grid.direct-contact { grid-template-columns: minmax(0, 760px); }
+    .contact-card { padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); }
+    .contact-card h3 { margin: 0 0 20px; font-size: 23px; letter-spacing: -.05em; }
+    .contact-row { display: grid; grid-template-columns: 25px 1fr; gap: 10px; padding: 14px 0; border-top: 1px solid var(--line); font-size: 13px; }
+    .contact-row b { color: var(--teal); }
+    .contact-row span { color: var(--muted); }
+    .contact-row a { color: var(--blue); text-decoration: none; }
+    footer { padding: 28px 0 38px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+    footer .footer-inner { display: flex; justify-content: space-between; gap: 20px; }
+    footer a { color: var(--blue); text-decoration: none; }
+    @media (max-width: 900px) {
+      .topbar-inner { height: auto; padding-top: 15px; padding-bottom: 15px; align-items: flex-start; flex-direction: column; }
+      nav { width: 100%; overflow-x: auto; padding-bottom: 2px; }
+      .nav-btn { white-space: nowrap; padding: 8px 11px; }
+      .hero-grid, .split, .contact-grid { grid-template-columns: 1fr; }
+      .hero { padding: 70px 0 60px; }
+      .hero-card { max-width: 500px; }
+      .people-grid, .pub-columns { grid-template-columns: 1fr; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+    }
+    @media (max-width: 560px) {
+      .shell { padding: 0 17px; }
+      h1 { font-size: 52px; }
+      .hero-lede { font-size: 16px; }
+      .conference-item { grid-template-columns: 48px 1fr; gap: 12px; }
+      .conference-person { grid-column: 2; justify-self: start; }
+      footer .footer-inner { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="#home" data-tab="home"><span class="brand-mark">∇</span><span>NAP Lab<small>Nonlinear analysis &amp; PDE</small></span></a>
+      <nav aria-label="Primary navigation">
+        <button class="nav-btn active" data-tab-target="home">Overview</button>
+        <button class="nav-btn" data-tab-target="people">People</button>
+        <button class="nav-btn" data-tab-target="projects">Projects</button>
+        <button class="nav-btn" data-tab-target="publications">Publications</button>
+        <button class="nav-btn" data-tab-target="conferences">Conferences</button>
+        <button class="nav-btn" data-tab-target="contact">Contact</button>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero" id="home">
+    <div class="shell hero-grid">
+      <div>
+        <div class="eyebrow">A research group across Warsaw &amp; Toruń</div>
+        <h1>Mathematics at the edge of structure.</h1>
+        <p class="hero-lede">We study nonlinear partial differential equations, variational methods, critical phenomena and Hamiltonian dynamics — turning singular problems into rigorous mathematics.</p>
+        <div class="hero-links">
+          <button class="pill-link" data-tab-target="projects">Explore the research <span>↗</span></button>
+          <button class="pill-link ghost" data-tab-target="publications">Browse publications <span>↗</span></button>
+        </div>
+      </div>
+      <!-- <aside class="hero-card">
+        <div class="hero-card-label">Lab snapshot</div>
+        <strong>One problem.<br>Many lenses.</strong>
+        <p>Variational analysis, elliptic equations, nonlinear Schrödinger models and symmetry-driven dynamics.</p>
+        <div class="metric-row"><div class="metric"><b>3</b><span>researchers</span></div><div class="metric"><b>60+</b><span>listed works</span></div><div class="metric"><b>2</b><span>universities</span></div></div>
+      </aside> -->
+    </div>
+  </section>
+
+  <main class="tabs shell">
+    <section class="tab-panel active" data-tab="home-panel">
+      <div class="section-head"><div><div class="section-kicker">The lab</div><h2>Small team.<br>Deep questions.</h2></div><p class="section-intro">An informal research laboratory connecting the Faculty of Mathematics, Informatics and Mechanics at the University of Warsaw with the Faculty of Mathematics and Computer Science at Nicolaus Copernicus University.</p></div>
+      <div class="people-grid">
+        <article class="person-card"><div class="initials">BB</div>
+          <h3>Bartosz Bieganowski</h3>
+          <div class="role">University of Warsaw</div>
+          <div class="mini-links"><a href="#people" data-tab="people">Profile</a></div>
+        </article>
+        <article class="person-card"><div class="initials">DS</div>
+          <h3>Daniel Strzelecki</h3>
+          <div class="role">Nicolaus Copernicus University</div>
+          <div class="mini-links"><a href="#people" data-tab="people">Profile</a></div>
+        </article>
+        <article class="person-card"><div class="initials">AK</div>
+          <h3>Adam Konysz</h3><div class="role">Nicolaus Copernicus University</div>
+          <div class="mini-links"><a href="#people" data-tab="people">Profile</a></div>
+        </article>
+      </div>
+      <div class="split">
+        <article class="feature">
+          <div class="section-kicker">Research signature</div>
+          <h3>Singularities are not a nuisance. They are the structure.</h3>
+          <p>Our work follows the variational thread through problems from mathematical physics: finding ground states, understanding multiplicity, and tracking how geometry and symmetry shape solutions.</p>
+          <div class="feature-meta">
+            <span class="tag yellow">Nonlinear PDE</span>
+            <span class="tag">Critical phenomena</span>
+            <span class="tag teal">Variational methods</span>
+          </div>
+        </article>
+        <aside class="info-card">
+          <h3>Research themes</h3>
+          <ul class="clean-list">
+            <li><strong>Elliptic equations</strong>Singular potentials, mixed nonlinearities, Hardy-type terms.</li>
+            <li><strong>Nonlinear Schrödinger models</strong>Ground states, normalized solutions, semiclassical regimes.</li>
+            <li><strong>Hamiltonian dynamics</strong>Periodic solutions, bifurcation and critical orbits.</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section class="tab-panel" data-tab="people-panel">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">People</div>
+          <h2>Three names,<br>one conversation.</h2>
+        </div>
+      </div>
+      <div class="people-grid">
+        <article class="info-card profile-card">
+          <div class="profile-photo">
+            <img src="Bartosz.jpg" alt="Portrait of Bartosz Bieganowski" onerror="this.hidden=true"><span>BB</span>
+          </div>
+          <h3>Bartosz Bieganowski</h3>
+          <div class="role">dr hab. · Assistant Professor</div>
+          <ul class="clean-list">
+            <li><strong>Affiliations</strong>University of Warsaw · Nicolaus Copernicus University</li>
+            <li><strong>Interests</strong>Schrödinger-type equations, variational methods and singular elliptic problems.</li>
+            <li><strong>Email</strong><a href="mailto:bartoszb@mimuw.edu.pl">bartoszb@mimuw.edu.pl</a><br>
+              <!-- <a href="mailto:bartoszb@mat.umk.pl">bartoszb@mat.umk.pl</a></li> -->
+          </ul>
+          <div class="profile-links">
+            <a href="https://mimuw.edu.pl/~bartoszb/" target="_blank" rel="noreferrer">Homepage ↗</a>
+            <a href="https://orcid.org/0000-0003-2037-1573" target="_blank" rel="noreferrer">ORCID ↗</a>
+          </div>
+        </article>
+        
+        <article class="info-card profile-card">
+          <div class="profile-photo">
+            <img src="Daniel.jpg" alt="Portrait of Daniel Strzelecki" onerror="this.hidden=true"><span>DS</span>
+          </div>
+          <h3>Daniel Strzelecki</h3>
+          <div class="role">dr · Assistant Professor</div>
+          <ul class="clean-list">
+            <li><strong>Affiliation</strong>Nicolaus Copernicus University in Toruń</li>
+            <li><strong>Interests</strong>Hamiltonian systems, periodic solutions, equivariant methods and nonlinear analysis.</li>
+            <li><strong>Email</strong><a href="mailto:danio@mat.umk.pl">danio@mat.umk.pl</a></li>
+          </ul>
+          <div class="profile-links">
+            <a href="https://www-users.mat.umk.pl/~danio/" target="_blank" rel="noreferrer">Homepage ↗</a>
+            <a href="https://orcid.org/0000-0002-0006-3242" target="_blank" rel="noreferrer">ORCID ↗</a>
+          </div>
+        </article>
+        
+        <article class="info-card profile-card">
+          <div class="profile-photo">
+            <img src="Adam.jpg" alt="Portrait of Adam Konysz" onerror="this.hidden=true"><span>AK</span>
+          </div>
+          <h3>Adam Konysz</h3>
+          <div class="role">Doctoral researcher</div>
+          <ul class="clean-list">
+            <li><strong>Affiliation</strong>Nicolaus Copernicus University</li>
+            <li><strong>Interests</strong>Nonlinear Schrödinger equations, critical potentials, curl–curl equations and semiclassical states.</li>
+            <li><strong>Email</strong><a href="mailto:adamkon@mat.umk.pl">adamkon@mat.umk.pl</a></li>
+          </ul>
+          <div class="profile-links">
+            <a href="https://www.mat.umk.pl/" target="_blank" rel="noreferrer">Faculty homepage ↗</a>
+            <a href="https://orcid.org/0000-0003-1345-0388" target="_blank" rel="noreferrer">ORCID ↗</a>
+          </div>
+        </article>
+      </div>
+      
+    </section>
+
+    <section class="tab-panel" data-tab="projects-panel">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Research projects</div>
+          <h2>Active questions<br>in the wild.</h2>
+        </div>
+      </div>
+       <article class="feature">
+        <div class="section-kicker">National Science Centre · SONATA 18 · ST1</div>
+        <h3>Variational problems with singularities arising from mathematical physics</h3>
+        <p>How can variational and topological methods reveal solutions of elliptic problems when singularities come directly from a mathematical-physics model? The project studies singular variational problems, nonlinear Schrödinger equations and related critical phenomena.</p>
+        <div class="feature-meta">
+          <span class="tag yellow">Contract 2022/47/D/ST1/00487</span>
+          <span class="tag teal">PLN 823k</span>
+        </div>
+        <div class="feature-foot">
+          <span class='tag'><b>PI:</b> Bartosz Bieganowski</span>
+          <span class='tag'>Team: Bartosz + Daniel + Adam</span>
+          <span class='tag'><b>Host:</b> University of Warsaw</span>
+        </div>
+      </article>
+
+       <article class="feature proposal">
+        <div class="section-kicker">Research direction</div>
+        <h3>AI, Lean, and PDEs: A Human-in-the-Loop Approach to Nonlinear Analysis</h3>
+        <p>This project connects nonlinear PDE research with AI-assisted formalization in the Lean proof assistant. It explores strongly indefinite Schrödinger equations with sign-changing nonlinearities, critical Hardy potentials and degenerate Grushin equations, while using automated proof search to test intermediate estimates and expose hidden assumptions. Accepted proof fragments would be checked by Lean’s trusted kernel and developed into reusable mathematical infrastructure.</p>
+        <div class="feature-foot">
+          <span class='tag'>PI: Daniel Strzelecki</span>
+          <span class='tag'>Team: Daniel + Bartosz</span>
+          <span class='tag'>Lean · mathlib · PDE</span>
+        </div>
+      </article>
+
+       <div class="split"><aside class="info-card">
+        <h3>Earlier NCN projects</h3>
+        <ul class="clean-list">
+          <li><strong>Bartosz Bieganowski</strong>“Nonlinear Schrödinger equations with sign-changing nonlinearities” · PRELUDIUM 13 · 2018–2022.</li>
+          <li><strong>Daniel Strzelecki</strong>“Periodic solutions of symmetric Hamiltonian systems” · PRELUDIUM 13 · 2018–2020.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="tab-panel" data-tab="publications-panel">
+      <div class="section-head">
+        <div><div class="section-kicker">Publications</div>
+        <h2>Ideas in print,<br>preprint and motion.</h2>
+      </div></div>
+      <div class="pub-toolbar"><label class="search-box"><span>⌕</span><input id="pub-search" type="search" placeholder="Search titles, journals or years..."></label><button class="filter-btn active" data-author-filter="all">All</button><button class="filter-btn" data-author-filter="Bartosz">Bartosz</button><button class="filter-btn" data-author-filter="Daniel">Daniel</button><button class="filter-btn" data-author-filter="Adam">Adam</button></div>
+       <div class="pub-list-heading"><h3>All publications</h3><span>Co-authored works are shown once</span></div><div class="pub-columns">
+        <article class="pub-column" data-column-author="Bartosz"><div class="pub-column-head"><h3>Bartosz Bieganowski</h3><span>42 listed works</span></div><ul class="pub-list">
+          <li class="pub-item" data-author="Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Bieganowski &amp; Gąsienica-Samek: Nauka programowania jako fundament edukacji informatycznej <em>[in Polish]</em></strong><small>In Informatyka w Edukacji: Edukacja w dobie technologii przełomowych · <a href="https://mimuw.edu.pl/~bartoszb/nauka_programowania.pdf" target="_blank" rel="noreferrer">PDF</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Ground states for strongly indefinite Schrödinger equations with competing nonlinearities</strong><small>Preprint · <a href="https://arxiv.org/abs/2606.25090" target="_blank" rel="noreferrer">arXiv:2606.25090</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>A generalisation of the Gagliardo–Nirenberg Inequality with applications to mass-critical and mass-subcritical elliptic equations</strong><small>Preprint · <a href="https://arxiv.org/abs/2604.24381" target="_blank" rel="noreferrer">arXiv:2604.24381</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Finite-energy solutions to Einstein-scalar field Lichnerowicz equations on complete Riemannian manifolds</strong><small>Preprint · <a href="https://arxiv.org/abs/2603.09889" target="_blank" rel="noreferrer">arXiv:2603.09889</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Bieganowski, Konysz &amp; Secchi: Nonlinear Schrödinger equations with a critical, inverse-square potential</strong><small>To appear in SIAM J. Math. Anal. · <a href="https://arxiv.org/abs/2602.16524" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Bieganowski &amp; Strzelecki: Note on the multiplicity of solutions for nonlinear scalar field equations with a critical inverse-square potential</strong><small>Analytical and Mathematical Physics 16, 69 · <a href="https://doi.org/10.1007/s13324-026-01219-1" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Ikoma, Bieganowski &amp; Mederski: Ground state solutions to the nonlinear Born–Infeld problem</strong><small>To appear in J. Math. Pures Appl. · <a href="https://arxiv.org/abs/2512.19566" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Bieganowski &amp; Strzelecki: Nonlinear scalar field equations with a critical Hardy potential</strong><small>Preprint · <a href="https://arxiv.org/abs/2511.15668" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Bieganowski, d’Avenia, Schino &amp; Strzelecki: A Lichnerowicz equation in the Einstein-scalar field theory on non-CMC closed manifolds</strong><small>Preprint · <a href="https://arxiv.org/abs/2510.17669" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2025"><span class="pub-year">2025</span><div class="pub-copy"><strong>Bieganowski, Skiba, Strzelecki &amp; Topolewski: Putnam-like dataset summary: LLMs as mathematical competition contestants</strong><small>Preprint · <a href="https://arxiv.org/abs/2509.24827" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2025"><span class="pub-year">2025</span><div class="pub-copy"><strong>Cyberbezpieczeństwo sztucznej inteligencji <em>[in Polish]</em></strong><small>In Informatyka w Edukacji: edukacja informatyczna a kompetencje cyfrowe XXI wieku</small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2025"><span class="pub-year">2025</span><div class="pub-copy"><strong>Bieganowski &amp; Konysz: Note on elliptic equations on closed manifolds with singular nonlinearities</strong><small>To appear in Riv. Math. Univ. Parma · <a href="https://arxiv.org/abs/2504.21339" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2025"><span class="pub-year">2025</span><div class="pub-copy"><strong>Bernini, Bieganowski &amp; Strzelecki: Multiplicity of critical orbits to nonlinear, strongly indefinite functionals with sign-changing nonlinear part</strong><small>Calc. Var. Partial Differential Equations 64, 234 · <a href="https://doi.org/10.1007/s00526-025-03112-4" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Bieganowski, Miyagaki &amp; Schino: Normalized solutions to polyharmonic equations with Hardy-type potentials and exponential critical nonlinearities</strong><small>Commun. Contemp. Math. 28, 2550088 · <a href="https://doi.org/10.1142/S0219199725500889" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Baldelli, Bieganowski &amp; Mederski: Traveling waves for nonlinear Schrödinger equations</strong><small>Proc. Amer. Math. Soc. 154, 4781–4797 · <a href="https://doi.org/10.1090/proc/17775" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Bernini, Bieganowski &amp; Strzelecki: Note on homoclinic solutions to nonautonomous Hamiltonian systems with sign-changing nonlinear part</strong><small>Topol. Methods Nonlinear Anal. 67(1) · <a href="https://doi.org/10.12775/TMNA.2025.034" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2025"><span class="pub-year">2025</span><div class="pub-copy"><strong>Bieganowski, d’Avenia &amp; Schino: Existence and dynamics of normalized solutions to Schrödinger equations with generic double-behaviour nonlinearities</strong><small>J. Differential Equations 441, 113489 · <a href="https://doi.org/10.1016/j.jde.2025.113489" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz,Adam" data-year="2025"><span class="pub-year">2025</span><div class="pub-copy"><strong>Bieganowski, Konysz &amp; Mederski: Semiclassical states for the curl–curl problem</strong><small>Nonlinear Analysis 255, 113756 · <a href="https://doi.org/10.1016/j.na.2025.113756" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2023"><span class="pub-year">2023</span><div class="pub-copy"><strong>Metoda haszowania w podstawie programowej <em>[in Polish]</em></strong><small>Informatyka w edukacji: Edukacja informatyczna — wyzwania współczesnego świata</small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2023"><span class="pub-year">2023</span><div class="pub-copy"><strong>Bieganowski, Cieślak &amp; Siemianowski: Time-zero limits of Kaden’s spirals and 2D Euler</strong><small>To appear in Lecture Notes in Nonlinear Analysis · <a href="https://arxiv.org/abs/2305.15356" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2024"><span class="pub-year">2024</span><div class="pub-copy"><strong>Bieganowski, Mederski &amp; Schino: Normalized solutions to at least mass critical problems</strong><small>J. Geom. Anal. 34, 322 · <a href="https://doi.org/10.1007/s12220-024-01770-y" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz,Adam" data-year="2023"><span class="pub-year">2023</span><div class="pub-copy"><strong>Bieganowski &amp; Konysz: Elliptic problems with mixed nonlinearities and potentials singular at the origin and at the boundary of the domain</strong><small>J. Fixed Point Theory Appl. 25, 83 · <a href="https://doi.org/10.1007/s11784-023-01085-5" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2022"><span class="pub-year">2022</span><div class="pub-copy"><strong>Bezpieczeństwo kont w Internecie <em>[in Polish]</em></strong><small>Informatyka w edukacji: Uczniowie i nauczyciele w szkole przyszłości</small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2023"><span class="pub-year">2023</span><div class="pub-copy"><strong>Bieganowski, Cieślak &amp; Siemianowski: Magnetostatic levitation and two related linear PDEs in unbounded domains</strong><small>Rep. Math. Phys. 92(2), 135–144 · <a href="https://doi.org/10.1016/S0034-4877(23)00066-6" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2022"><span class="pub-year">2022</span><div class="pub-copy"><strong>Bernini &amp; Bieganowski: Generalized linking-type theorem with applications to strongly indefinite problems with sign-changing nonlinearities</strong><small>Calc. Var. Partial Differential Equations 61, 182 · <a href="https://doi.org/10.1007/s00526-022-02297-2" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2022"><span class="pub-year">2022</span><div class="pub-copy"><strong>On-line interval graphs coloring — modification of the First-Fit algorithm and its performance ratio</strong><small>Discrete Mathematics, Algorithms and Applications 14, 2250042 · <a href="https://doi.org/10.1142/S1793830922500422" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2022"><span class="pub-year">2022</span><div class="pub-copy"><strong>Bernini, Bieganowski &amp; Secchi: Semirelativistic Choquard equations with singular potentials and general nonlinearities arising from Hartree–Fock theory</strong><small>Nonlinear Analysis 217, 112738 · <a href="https://doi.org/10.1016/j.na.2021.112738" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2021"><span class="pub-year">2021</span><div class="pub-copy"><strong>Solutions to a nonlinear Maxwell equation with two competing nonlinearities in R3</strong><small>Bulletin Polish Acad. Sci. Math. 69, 37–60 · <a href="https://doi.org/10.4064/ba210731-19-8" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2021"><span class="pub-year">2021</span><div class="pub-copy"><strong>Bieganowski &amp; Mederski: Normalized ground states of the nonlinear Schrödinger equation with at least mass critical growth</strong><small>J. Funct. Anal. 280, 108989 · <a href="https://doi.org/10.1016/j.jfa.2021.108989" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2019"><span class="pub-year">2019</span><div class="pub-copy"><strong>Bieganowski, Dymek &amp; Strzelecki: Średnie w zawodach studenckich <em>[in Polish]</em></strong><small>Delta 12 (547), 18–19 · <a href="http://www.deltami.edu.pl/delta/archiwum/2019/12/" target="_blank" rel="noreferrer">Delta</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2020"><span class="pub-year">2020</span><div class="pub-copy"><strong>Bieganowski &amp; Secchi: Non-local to local transition for ground states of fractional Schrödinger equations on R<sup>N</sup></strong><small>J. Fixed Point Theory Appl. 22, 76 · <a href="https://doi.org/10.1007/s11784-020-00812-6" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2021"><span class="pub-year">2021</span><div class="pub-copy"><strong>Bieganowski &amp; Secchi: Non-local to local transition for ground states of fractional Schrödinger equations on bounded domains</strong><small>Topol. Methods Nonlinear Anal. 57, 413–425 · <a href="https://doi.org/10.12775/TMNA.2020.038" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2022"><span class="pub-year">2022</span><div class="pub-copy"><strong>Bieganowski &amp; Mederski: Bound states for the Schrödinger equation with mixed-type nonlinearities</strong><small>Indiana Univ. Math. J. 71, 65–92 · <a href="https://doi.org/10.1512/iumj.2022.71.8662" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2018"><span class="pub-year">2018</span><div class="pub-copy"><strong>Schrödinger-type equations with sign-changing nonlinearities: a survey</strong><small>Survey · <a href="https://arxiv.org/abs/1810.01754" target="_blank" rel="noreferrer">arXiv:1810.01754</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2019"><span class="pub-year">2019</span><div class="pub-copy"><strong>Bieganowski &amp; Mederski: Note on semiclassical states for the Schrödinger equation with nonautonomous nonlinearities</strong><small>Appl. Math. Lett. 88, 149–155 · <a href="https://doi.org/10.1016/j.aml.2018.08.021" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2018"><span class="pub-year">2018</span><div class="pub-copy"><strong>Narzędzia informatyczne w nauczaniu przedmiotów przyrodniczych <em>[in Polish]</em></strong><small>In Informatyka w edukacji. Myśl komputacyjnie!</small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2019"><span class="pub-year">2019</span><div class="pub-copy"><strong>Bieganowski &amp; Secchi: The semirelativistic Choquard equation with a local nonlinear term</strong><small>Discrete &amp; Continuous Dynamical Systems A 37, 4279–4302 · <a href="https://doi.org/10.3934/dcds.2019173" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2019"><span class="pub-year">2019</span><div class="pub-copy"><strong>Systems of coupled Schrödinger equations with sign-changing nonlinearities via classical Nehari manifold approach</strong><small>Complex Var. Elliptic Equ. 64, 1237–1256 · <a href="https://doi.org/10.1080/17476933.2018.1514029" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2018"><span class="pub-year">2018</span><div class="pub-copy"><strong>The fractional Schrödinger equation with Hardy-type potentials and sign-changing nonlinearities</strong><small>Nonlinear Analysis 176, 117–140 · <a href="https://doi.org/10.1016/j.na.2018.06.009" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2019"><span class="pub-year">2019</span><div class="pub-copy"><strong>Bieganowski, Cieślak, Fujie &amp; Senba: Boundedness of solutions to the critical fully parabolic quasilinear one-dimensional Keller–Segel system</strong><small>Math. Nachr. 292, 724–732 · <a href="https://doi.org/10.1002/mana.201800175" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2017"><span class="pub-year">2017</span><div class="pub-copy"><strong>Solutions of the fractional Schrödinger equation with a sign-changing nonlinearity</strong><small>J. Math. Anal. Appl. 450, 461–479 · <a href="https://doi.org/10.1016/j.jmaa.2017.01.037" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Bartosz" data-year="2018"><span class="pub-year">2018</span><div class="pub-copy"><strong>Bieganowski &amp; Mederski: Nonlinear Schrödinger equations with sum of periodic and vanishing potentials and sign-changing nonlinearities</strong><small>Commun. Pure Appl. Anal. 17, 143–161 · <a href="https://doi.org/10.3934/cpaa.2018009" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+        </ul><div class="empty-state">No matching publications.</div></article>
+        <article class="pub-column" data-column-author="Daniel"><div class="pub-column-head"><h3>Daniel Strzelecki</h3><span>14 listed works</span></div><ul class="pub-list">
+          <li class="pub-item" data-author="Daniel" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Skiba, Strzelecki &amp; Waterstraat: An index theorem in relative K-theory for first-order systems</strong><small>Preprint · <a href="https://arxiv.org/abs/2603.20523" target="_blank" rel="noreferrer">arXiv:2603.20523</a></small></div></li>
+          <li class="pub-item" data-author="Daniel,Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Bieganowski &amp; Strzelecki: Note on the multiplicity of solutions for nonlinear scalar field equations with a critical inverse-square potential</strong><small>Anal. Math. Phys. 16, 69 · <a href="https://doi.org/10.1007/s13324-026-01219-1" target="_blank" rel="noreferrer">DOI</a> · <a href="https://arxiv.org/abs/2601.15003" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Daniel" data-year="2025"><span class="pub-year">2025</span><div class="pub-copy"><strong>Bieganowski, Skiba, Topolewski &amp; Strzelecki: Putnam-like dataset summary: LLMs as mathematical competition contestants</strong><small>Preprint · <a href="https://arxiv.org/abs/2509.24827" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Daniel" data-year="2025"><span class="pub-year">2025</span><div class="pub-copy"><strong>Bieganowski, d’Avenia, Schino &amp; Strzelecki: A Lichnerowicz equation in the Einstein-scalar field theory on non-CMC closed manifolds</strong><small>Preprint · <a href="https://arxiv.org/abs/2510.17669" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Daniel" data-year="2025"><span class="pub-year">2025</span><div class="pub-copy"><strong>Bieganowski &amp; Strzelecki: Nonlinear scalar field equations with a critical Hardy potential</strong><small>Preprint · <a href="https://arxiv.org/abs/2511.15668" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Daniel" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Bernini, Bieganowski &amp; Strzelecki: Note on homoclinic solutions to nonautonomous Hamiltonian systems with sign-changing nonlinear part</strong><small>Topol. Methods Nonlinear Anal. 67(1) · <a href="https://doi.org/10.12775/TMNA.2025.034" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Daniel" data-year="2025"><span class="pub-year">2025</span><div class="pub-copy"><strong>Bernini, Bieganowski &amp; Strzelecki: Multiplicity of critical orbits to nonlinear, strongly indefinite functionals with sign-changing nonlinear part</strong><small>Calc. Var. Partial Differential Equations 64, 234 · <a href="https://doi.org/10.1007/s00526-025-03112-4" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Daniel" data-year="2024"><span class="pub-year">2024</span><div class="pub-copy"><strong>Hachaj, Gierszewski, Juśkiewicz, Habel, Szlapa, Tutro, Strzelecki &amp; Kaszubski: The ADDRESS of a Grain</strong><small>Science of the Total Environment 957, 177511 · <a href="https://doi.org/10.1016/j.scitotenv.2024.177511" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Daniel,Bartosz" data-year="2024"><span class="pub-year">2024</span><div class="pub-copy"><strong>Skiba, Miziuła, Strzelecki &amp; Bieganowski: Zbiór zadań z analizy i algebry: edycja rozszerzona</strong><small>Book · Wydawnictwo Aksjomat, Toruń · <a href="https://www.aksjomat.torun.pl/pl/p/Zbior-zadan-z-analizy-i-algebry-edycja-rozszerzona/336" target="_blank" rel="noreferrer">Get copy</a></small></div></li>
+          <li class="pub-item" data-author="Daniel" data-year="2021"><span class="pub-year">2021</span><div class="pub-copy"><strong>Bifurcations of quasi-periodic solutions from relative equilibria in the Lennard–Jones 2-body problem</strong><small>Celestial Mech. Dynam. Astronom. 133, 44 · <a href="https://doi.org/10.1007/s10569-021-10041-9" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Daniel" data-year="2020"><span class="pub-year">2020</span><div class="pub-copy"><strong>Periodic solutions of symmetric Hamiltonian systems</strong><small>Arch. Ration. Mech. Anal. 237, 921–950 · <a href="https://doi.org/10.1007/s00205-020-01522-6" target="_blank" rel="noreferrer">DOI</a> · <a href="https://arxiv.org/abs/1906.02463" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Daniel" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Correction to: Periodic solutions of symmetric Hamiltonian systems</strong><small>Arch. Ration. Mech. Anal. 250, 71 · <a href="https://doi.org/10.1007/s00205-026-02226-z" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Daniel" data-year="2018"><span class="pub-year">2018</span><div class="pub-copy"><strong>Pérez-Chavela, Rybicki &amp; Strzelecki: Symmetric Liapunov center theorem for minimal orbit</strong><small>J. Differential Equations 265, 752–778 · <a href="https://doi.org/10.1016/j.jde.2018.03.009" target="_blank" rel="noreferrer">DOI</a></small></div></li>
+          <li class="pub-item" data-author="Daniel" data-year="2017"><span class="pub-year">2017</span><div class="pub-copy"><strong>Pérez-Chavela, Rybicki &amp; Strzelecki: Symmetric Liapunov center theorem</strong><small>Calc. Var. Partial Differential Equations 56, 26 · <a href="https://doi.org/10.1007/s00526-017-1120-1" target="_blank" rel="noreferrer">DOI</a> · <a href="https://arxiv.org/abs/1607.01143" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+        </ul><div class="empty-state">No matching publications.</div></article>
+        <article class="pub-column" data-column-author="Adam"><div class="pub-column-head"><h3>Adam Konysz</h3><span>4 listed works</span></div><ul class="pub-list">
+          <li class="pub-item" data-author="Adam,Bartosz" data-year="2026"><span class="pub-year">2026</span><div class="pub-copy"><strong>Bieganowski, Konysz &amp; Secchi: Nonlinear Schrödinger equations with a critical, inverse-square potential</strong><small>Preprint · <a href="https://arxiv.org/abs/2602.16524" target="_blank" rel="noreferrer">arXiv:2602.16524</a></small></div></li>
+          <li class="pub-item" data-author="Adam,Bartosz" data-year="2025"><span class="pub-year">2025</span><div class="pub-copy"><strong>Bieganowski &amp; Konysz: Note on elliptic equations on closed manifolds with singular nonlinearities</strong><small>Preprint · <a href="https://arxiv.org/abs/2504.21339" target="_blank" rel="noreferrer">arXiv:2504.21339</a></small></div></li>
+          <li class="pub-item" data-author="Adam,Bartosz" data-year="2025"><span class="pub-year">2025</span><div class="pub-copy"><strong>Bieganowski, Konysz &amp; Mederski: Semiclassical states for the curl–curl problem</strong><small>Nonlinear Analysis 255, 113756 · <a href="https://doi.org/10.1016/j.na.2025.113756" target="_blank" rel="noreferrer">DOI</a> · <a href="https://arxiv.org/abs/2312.03658" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+          <li class="pub-item" data-author="Adam,Bartosz" data-year="2023"><span class="pub-year">2023</span><div class="pub-copy"><strong>Bieganowski &amp; Konysz: Elliptic problems with mixed nonlinearities and potentials singular at the origin and at the boundary of the domain</strong><small>J. Fixed Point Theory Appl. 25, 83 · <a href="https://doi.org/10.1007/s11784-023-01085-5" target="_blank" rel="noreferrer">DOI</a> · <a href="https://arxiv.org/abs/2212.07825" target="_blank" rel="noreferrer">arXiv</a></small></div></li>
+        </ul><div class="empty-state">No matching publications.</div></article>
+      </div>
+    </section>
+
+    <section class="tab-panel" data-tab="conferences-panel">
+      <div class="section-head"><div><div class="section-kicker">Conferences</div><h2>Where the work<br>travels next.</h2></div></div>
+      <div class="conference-toolbar" id="conference-filters"><button class="filter-btn active" data-conference-year="all">All years</button></div>
+      <div class="conference-list">
+        <div class="conference-item"><div class="conference-year">2025</div><div><h3>Workshop for young researchers in PDEs</h3><p>Invited talk: Semiclassical states for the curl–curl problem · Warsaw</p></div><span class="conference-person">Adam</span></div>
+        <div class="conference-item"><div class="conference-year">2025</div><div><h3>Geometric Analysis and PDEs</h3><p>Poster: Semiclassical states for the curl–curl problem · Chęciny</p></div><span class="conference-person">Adam</span></div>
+        <div class="conference-item"><div class="conference-year">2025</div><div><h3>PDEs in Bari: New directions and applications</h3><p>Poster: Semiclassical states for the curl–curl problem · Bari</p></div><span class="conference-person">Adam</span></div>
+        <div class="conference-item"><div class="conference-year">2025</div><div><h3>Recent advances and challenges in partial differential equations</h3><p>Short talk with poster: Semiclassical states for the curl–curl problem · Warsaw</p></div><span class="conference-person">Adam</span></div>
+        <div class="conference-item"><div class="conference-year">2025</div><div><h3>Existence and regularity for non-uniformly elliptic and parabolic problems</h3><p>Summer school · Montecatini Terme</p></div><span class="conference-person">Adam</span></div>
+        <div class="conference-item"><div class="conference-year">2024</div><div><h3>Warsaw meeting in Analysis and PDEs</h3><p>Talk: Normalized ground states of nonlinear Schrödinger-type equations</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2024</div><div><h3>Variational methods in applications to PDEs</h3><p>Organizer · Research conference</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2024</div><div><h3>European Congress of Mathematics</h3><p>Organizer of a minisymposium</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2024</div><div><h3>XIII Forum of Partial Differential Equations</h3><p>Talk: Normalized ground states of the nonlinear Schrödinger equation</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2024</div><div><h3>VIII Symposium on Nonlinear Analysis</h3><p>Talk: Normalized ground states of the nonlinear Schrödinger equation with at least mass critical growth</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2024</div><div><h3>Summer School on Calculus of Variations</h3><p>Organizer · Variational and geometrical methods</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2024</div><div><h3>International Conference on Elliptic and Parabolic Problems</h3><p>Talk: Semiclassical states for the curl–curl problem</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2022</div><div><h3>Topics in variational problems arising from models in physics</h3><p>Talk: Normalized ground states of the nonlinear Schrödinger equation</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2022</div><div><h3>Equadiff</h3><p>Talk: Normalized ground states of the nonlinear Schrödinger equation</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2022</div><div><h3>School on nonlinear PDEs</h3><p>Talk: Normalized ground states of the nonlinear Schrödinger equation</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2022</div><div><h3>Recent trends in nonlinear and dispersive equations</h3><p>Equilibria, stability, dynamics · Talk</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2021</div><div><h3>XII Forum of Partial Differential Equations</h3><p>Talk: Normalized ground states of the nonlinear Schrödinger equation</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2019</div><div><h3>Jubilee Congress of Polish Mathematicians</h3><p>Talk: Bound states for the Schrödinger equation with mixed-type nonlinearities</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2019</div><div><h3>XI Forum of Partial Differential Equations</h3><p>Talk: Bound states for the Schrödinger equation with mixed-type nonlinearities</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2019</div><div><h3>International Conference on Elliptic and Parabolic Problems</h3><p>Talk: Fractional Schrödinger equations with singular potentials</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2018</div><div><h3>UMI–SIMAI–PTM 2018</h3><p>Talk: Fractional Schrödinger equations with singular potentials</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2018</div><div><h3>Summer School Wisla 18: Nonlinear PDEs</h3><p>Talk: Nonlinear Schrödinger equations and the Nehari manifold method</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2018</div><div><h3>Young PDEers at work</h3><p>Talk: The semirelativistic Choquard equation with a local nonlinear term</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2018</div><div><h3>Informatyka w Edukacji</h3><p>Talk in Polish: Tools in teaching natural-science subjects</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2018</div><div><h3>DyToComp</h3><p>Talk: The variational setting on the Nehari manifold</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2017</div><div><h3>Equadiff</h3><p>Talk and poster: Nonlinear (fractional) Schrödinger equations</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2017</div><div><h3>Emerging issues in nonlinear elliptic equations</h3><p>Poster: Nonlinear (fractional) Schrödinger equations</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2017</div><div><h3>International Conference on Elliptic and Parabolic Problems</h3><p>Poster: Ground-state solutions for the non-local Schrödinger equation</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2016</div><div><h3>7th Forum of Polish Mathematicians with Ukrainian Mathematicians</h3><p>Talk: Nonlinear Schrödinger equations with sign-changing nonlinearities</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2016</div><div><h3>3rd Conference on Nonlocal Operators and Partial Differential Equations</h3><p>Talk: Nonlinear Schrödinger equations with sign-changing nonlinearities</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2016</div><div><h3>X Forum of Partial Differential Equations</h3><p>Poster: Ground-state solutions for the semilinear Schrödinger equation</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2016</div><div><h3>Dynamical Systems and Applications IV</h3><p>Poster: Ground-state solutions for the semilinear Schrödinger equation</p></div><span class="conference-person">Bartosz</span></div>
+        <div class="conference-item"><div class="conference-year">2015</div><div><h3>VII Symposium on Nonlinear Analysis</h3><p>Talk: Ground-state solutions for the semilinear Schrödinger equation</p></div><span class="conference-person">Bartosz</span></div>
+      </div>
+      <p class="source-note">Conference sources: <a href="https://mimuw.edu.pl/~bartoszb/#konferencje" target="_blank" rel="noreferrer">Bartosz Bieganowski</a> and <a href="https://damsi.umk.pl/nauka/wystapienia/dynamika-i-teoria-ergodyczna/" target="_blank" rel="noreferrer">UMK research activity page</a>.</p>
+    </section>
+
+    <section class="tab-panel" data-tab="contact-panel">
+      <div class="section-head"><div><div class="section-kicker">Contact</div>
+      <h2>Start with<br>a good question.</h2></div>
+    </div>
+      <div class="contact-grid direct-contact">
+        <article class="contact-card">
+          <h3>Direct contacts</h3>
+          <div class="contact-row"><b>BB</b><span><strong>Bartosz Bieganowski</strong><br>
+            <a href="mailto:bartoszb@mimuw.edu.pl">bartoszb@mimuw.edu.pl</a><br>
+            <a href="mailto:bartoszb@mat.umk.pl">bartoszb@mat.umk.pl</a></span>
+          </div>
+          <div class="contact-row"><b>DS</b><span><strong>Daniel Strzelecki</strong><br>
+            <a href="mailto:danio@mat.umk.pl">danio@mat.umk.pl</a></span>
+          </div>
+          <div class="contact-row"><b>AK</b><span><strong>Adam Konysz</strong><br>
+            <a href="mailto:adamkon@mat.umk.pl">adamkon@mat.umk.pl</a></span>
+          </div>
+        </article></div>
+      
+
+    </section>
+  </main>
+
+  <footer><div class="shell footer-inner"><span>NAP Lab · nonlinear analysis &amp; PDE</span><span>Data snapshot · 21 September 2026 </span></div></footer>
+
+  <script>
+    const buttons = [...document.querySelectorAll('[data-tab-target]')];
+    const panels = [...document.querySelectorAll('.tab-panel')];
+    function openTab(name) {
+      const target = document.querySelector(`[data-tab="${name}-panel"]`) || document.querySelector('[data-tab="home-panel"]');
+      panels.forEach(panel => panel.classList.toggle('active', panel === target));
+      document.querySelectorAll('.nav-btn').forEach(button => button.classList.toggle('active', button.dataset.tabTarget === name));
+      document.querySelector('.hero')?.classList.toggle('is-hidden', name !== 'home');
+      if (name !== 'home') history.replaceState(null, '', `#${name}`);
+      else history.replaceState(null, '', location.pathname);
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+    buttons.forEach(button => button.addEventListener('click', event => { event.preventDefault(); openTab(button.dataset.tabTarget || button.dataset.tab); }));
+    document.querySelectorAll('a[data-tab]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); openTab(link.dataset.tab); }));
+    const initialTab = location.hash.replace('#', '');
+    if (initialTab && document.querySelector(`[data-tab="${initialTab}-panel"]`)) openTab(initialTab);
+
+    const search = document.querySelector('#pub-search');
+    const filterButtons = [...document.querySelectorAll('[data-author-filter]')];
+    const pubColumns = document.querySelector('.pub-columns');
+    const mergedList = document.createElement('ul');
+    mergedList.className = 'pub-list';
+    const seenPublications = new Set();
+    [...pubColumns.querySelectorAll('.pub-item')].forEach(item => {
+      const title = item.querySelector('.pub-copy strong')?.innerText.replace(/\s+/g, ' ').trim() || '';
+      const key = title.toLowerCase();
+      if (seenPublications.has(key)) return;
+      seenPublications.add(key);
+      const authors = new Set(item.dataset.author.split(','));
+      if (title.includes('Bieganowski')) authors.add('Bartosz');
+      if (title.includes('Strzelecki')) authors.add('Daniel');
+      if (title.includes('Konysz')) authors.add('Adam');
+      item.dataset.author = [...authors].join(',');
+      mergedList.append(item);
+    });
+    const emptyState = document.createElement('div');
+    emptyState.className = 'empty-state';
+    emptyState.textContent = 'No matching publications.';
+    pubColumns.replaceChildren(mergedList, emptyState);
+    const publications = [...mergedList.querySelectorAll('.pub-item')];
+    function filterPublications() {
+      const query = (search.value || '').toLowerCase().trim();
+      const selected = document.querySelector('.filter-btn.active')?.dataset.authorFilter || 'all';
+      publications.forEach(item => {
+        const authors = item.dataset.author.split(',');
+        const matchesAuthor = selected === 'all' || authors.includes(selected);
+        const matchesText = !query || item.innerText.toLowerCase().includes(query);
+        item.classList.toggle('hidden', !(matchesAuthor && matchesText));
+      });
+      emptyState.style.display = publications.some(item => !item.classList.contains('hidden')) ? 'none' : 'block';
+    }
+    filterButtons.forEach(button => button.addEventListener('click', () => { filterButtons.forEach(item => item.classList.remove('active')); button.classList.add('active'); filterPublications(); }));
+    search.addEventListener('input', filterPublications);
+
+    const conferenceItems = [...document.querySelectorAll('.conference-item')];
+    const conferenceFilters = document.querySelector('#conference-filters');
+    conferenceItems.forEach(item => {
+      const year = item.querySelector('.conference-year').innerText.trim();
+      const title = item.querySelector('h3').innerText.trim();
+      item.dataset.year = year;
+      item.innerHTML = `<div class="conference-year">${year}</div><h3>${title}</h3>`;
+    });
+    [...new Set(conferenceItems.map(item => item.dataset.year))].sort((a, b) => b - a).forEach(year => {
+      const button = document.createElement('button');
+      button.className = 'filter-btn';
+      button.dataset.conferenceYear = year;
+      button.textContent = year;
+      conferenceFilters.append(button);
+    });
+    conferenceFilters.addEventListener('click', event => {
+      const button = event.target.closest('[data-conference-year]');
+      if (!button) return;
+      conferenceFilters.querySelectorAll('.filter-btn').forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
+      const selectedYear = button.dataset.conferenceYear;
+      conferenceItems.forEach(item => item.classList.toggle('hidden', selectedYear !== 'all' && item.dataset.year !== selectedYear));
+    });
+  </script>
+</body>
+</html>
